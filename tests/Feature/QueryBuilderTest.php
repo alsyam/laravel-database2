@@ -304,7 +304,7 @@ class QueryBuilderTest extends TestCase
         });
     }
 
-    public function insertManyProducts()
+    public function insertManyCategories()
     {
         for ($i = 0; $i < 100; $i++) {
             DB::table('categories')->insert(
@@ -319,7 +319,7 @@ class QueryBuilderTest extends TestCase
 
     public function testChunk()
     {
-        $this->insertManyProducts();
+        $this->insertManyCategories();
 
         DB::table("categories")->orderBy("id")
             ->chunk(10, function ($categories) {
@@ -330,5 +330,18 @@ class QueryBuilderTest extends TestCase
                 });
                 Log::info("End Chunk");
             });
+    }
+
+    public function testLazy()
+    {
+        $this->insertManyCategories();
+
+        $collection = DB::table("categories")->orderBy("id")
+            ->lazy(10)->take(2);
+        self::assertNotNull($collection);
+
+        $collection->each(function ($item) {
+            Log::info(json_encode($item));
+        });
     }
 }
